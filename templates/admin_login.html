@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoTrack - Admin Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <header>
+        <div class="logo-section">
+            <div class="crypto-logo">₿</div>
+            <div class="project-name">CryptoTrack</div>
+        </div>
+        <nav class="nav-menu">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('about') }}">About</a>
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('signup') }}">Signup</a>
+            <a href="{{ url_for('admin_login') }}">Admin Login</a>
+        </nav>
+    </header>
+
+    <main style="display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 80px);">
+        <div class="admin-container">
+            <h1>Admin Portal</h1>
+            <p class="admin-subtitle">Secure administrator access</p>
+            
+            {% if error %}
+            <div class="error">{{ error }}</div>
+            {% endif %}
+            
+            <form method="POST">
+                <div class="form-group">
+                    <label for="admin_username">Admin Username</label>
+                    <input type="text" id="admin_username" name="admin_username" placeholder="Enter admin username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="admin_password">Admin Password</label>
+                    <input type="password" id="admin_password" name="admin_password" placeholder="Enter admin password" required>
+                </div>
+                
+                <button type="submit">🔓 Login</button>
+            </form>
+            
+            <a href="{{ url_for('index') }}">← Back to Home</a>
+        </div>
+    </main>
+</body>
+
+</html>

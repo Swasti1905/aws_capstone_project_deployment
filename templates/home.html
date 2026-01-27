@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoTrack - Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .dashboard-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .dashboard-welcome {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .dashboard-welcome h1 {
+            font-size: 40px;
+            color: #fff;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .dashboard-welcome p {
+            font-size: 18px;
+            color: #a0a0a0;
+        }
+
+        .dashboard-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+        }
+
+        .dashboard-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 12px;
+            padding: 25px 30px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+            flex: 1;
+            min-width: 280px;
+        }
+
+        .dashboard-card:hover {
+            background: rgba(102, 126, 234, 0.15);
+            border-color: rgba(102, 126, 234, 0.6);
+            transform: translateX(5px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.25);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .dashboard-card-icon {
+            font-size: 40px;
+            flex: 0 0 auto;
+        }
+
+        .dashboard-card-icon + h2 {
+            margin: 0;
+            font-size: 20px;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .dashboard-card-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .dashboard-card h2 {
+            font-size: 20px;
+            color: #fff;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .dashboard-card p {
+            font-size: 13px;
+            color: #a0a0a0;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .dashboard-card a {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: auto;
+            white-space: nowrap;
+            flex: 0 0 auto;
+        }
+
+        .dashboard-card a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .watchlist-preview {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+
+        .watchlist-preview h3 {
+            font-size: 20px;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        .watchlist-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .watchlist-item {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 8px;
+            padding: 15px 20px;
+            text-align: center;
+            flex: 0 1 auto;
+            min-width: 120px;
+        }
+
+        .watchlist-item-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .watchlist-item-count {
+            font-size: 24px;
+            color: #667eea;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .empty-watchlist {
+            text-align: center;
+            padding: 30px;
+            color: #a0a0a0;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .dashboard-card-content {
+                width: 100%;
+            }
+
+            .dashboard-card a {
+                align-self: flex-start;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-welcome h1 {
+                font-size: 28px;
+            }
+
+            .dashboard-cards {
+                flex-direction: column;
+            }
+
+            .dashboard-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .dashboard-card-content {
+                width: 100%;
+            }
+
+            .dashboard-card a {
+                width: 100%;
+                text-align: center;
+                align-self: stretch;
+            }
+
+            .watchlist-grid {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo-section">
+            <div class="crypto-logo">₿</div>
+            <div class="project-name">CryptoTrack</div>
+        </div>
+        <nav class="nav-menu">
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('search') }}">Search</a>
+            <a href="{{ url_for('watchlist') }}">Watchlist</a>
+            <a href="{{ url_for('about') }}">About</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </nav>
+    </header>
+
+    <main class="dashboard-main">
+        <div class="dashboard-welcome">
+            <h1>Welcome, {{ username }}! 👋</h1>
+            <p>Your personal cryptocurrency tracking dashboard</p>
+        </div>
+
+        <div class="dashboard-cards">
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="dashboard-card-icon">🔍</div>
+                    <h2>Search Crypto</h2>
+                </div>
+                <div class="dashboard-card-content">
+                    <p>Find and explore cryptocurrencies from Bitcoin to emerging altcoins</p>
+                </div>
+                <a href="{{ url_for('search') }}">Start Searching</a>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="dashboard-card-icon">📊</div>
+                    <h2>My Watchlist</h2>
+                </div>
+                <div class="dashboard-card-content">
+                    <p>Manage your portfolio and set price alerts for real-time notifications</p>
+                </div>
+                <a href="{{ url_for('watchlist') }}">View Watchlist</a>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="dashboard-card-icon">📈</div>
+                    <h2>Market Overview</h2>
+                </div>
+                <div class="dashboard-card-content">
+                    <p>Get insights into market trends and top performing cryptocurrencies</p>
+                </div>
+                <a href="{{ url_for('search') }}">View Markets</a>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="dashboard-card-icon">🔔</div>
+                    <h2>Price Alerts</h2>
+                </div>
+                <div class="dashboard-card-content">
+                    <p>Set custom price thresholds and receive notifications automatically</p>
+                </div>
+                <a href="{{ url_for('watchlist') }}">Manage Alerts</a>
+            </div>
+        </div>
+
+        {% if watchlist %}
+            <div class="watchlist-preview">
+                <h3>Your Current Watchlist</h3>
+                <div class="watchlist-grid">
+                    {% for crypto in watchlist %}
+                        <div class="watchlist-item">
+                            <div class="watchlist-item-name">{{ crypto.symbol }}</div>
+                            <div class="watchlist-item-count">${{ "%.2f"|format(crypto.current_price) }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <div class="watchlist-preview">
+                <div class="empty-watchlist">
+                    <p>Your watchlist is currently empty. Start by searching for cryptocurrencies!</p>
+                    <a href="{{ url_for('search') }}" class="btn btn-primary" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 6px; margin-top: 15px;">Add Your First Crypto</a>
+                </div>
+            </div>
+        {% endif %}
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2026 CryptoTrack. All rights reserved. | Real-time Cryptocurrency Tracking Platform</p>
+        </div>
+    </footer>
+</body>
+
+</html>

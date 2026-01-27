@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Cryptocurrencies - CryptoTrack</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .search-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .search-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .search-header h1 {
+            font-size: 32px;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .search-input-group {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .search-input-group input {
+            flex: 1;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .search-input-group input::placeholder {
+            color: #666;
+        }
+
+        .search-input-group input:focus {
+            outline: none;
+            border-color: rgba(102, 126, 234, 0.8);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .search-input-group button {
+            padding: 12px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 0;
+            width: auto;
+        }
+
+        .search-input-group button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .back-to-watchlist {
+            display: inline-block;
+            margin-bottom: 30px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .back-to-watchlist:hover {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: rgba(102, 126, 234, 0.6);
+        }
+
+        .search-results {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .crypto-search-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .crypto-search-card:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: rgba(102, 126, 234, 0.6);
+            transform: translateX(5px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+        }
+
+        .search-card-header {
+            margin-bottom: 0;
+            flex: 0 0 auto;
+            min-width: 150px;
+        }
+
+        .search-card-header h3 {
+            font-size: 22px;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .search-card-symbol {
+            font-size: 14px;
+            color: #a0a0a0;
+        }
+
+        .price-display {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 0;
+            flex: 0 0 auto;
+            min-width: 130px;
+            text-align: center;
+        }
+
+        .price-display .label {
+            font-size: 11px;
+            color: #a0a0a0;
+            text-transform: uppercase;
+        }
+
+        .price-display .value {
+            font-size: 20px;
+            color: #667eea;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .stats-grid {
+            display: flex;
+            gap: 12px;
+            flex: 0 0 auto;
+        }
+
+        .stat-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 15px;
+            border-radius: 6px;
+            min-width: 90px;
+            text-align: center;
+        }
+
+        .stat-item .label {
+            font-size: 10px;
+            color: #a0a0a0;
+            text-transform: uppercase;
+        }
+
+        .stat-item .value {
+            font-size: 14px;
+            color: #fff;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .add-to-watchlist-btn {
+            margin-top: 0;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: all 0.3s ease;
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+
+        .add-to-watchlist-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .add-to-watchlist-btn.added {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: default;
+            margin: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 1;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0a0a0;
+        }
+
+        .empty-message h2 {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .all-cryptos-section {
+            margin-top: 40px;
+        }
+
+        .all-cryptos-section h2 {
+            text-align: center;
+            font-size: 28px;
+            color: #fff;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        @media (max-width: 1024px) {
+            .crypto-search-card {
+                flex-wrap: wrap;
+            }
+
+            .search-card-header {
+                flex: 1 1 100%;
+                margin-bottom: 10px;
+            }
+
+            .stats-grid {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .search-input-group {
+                flex-direction: column;
+            }
+
+            .search-results {
+                grid-template-columns: 1fr;
+            }
+
+            .crypto-search-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .add-to-watchlist-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-section">
+            <div class="crypto-logo">₿</div>
+            <div class="project-name">CryptoTrack</div>
+        </div>
+        <nav class="nav-menu">
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('search') }}">Search</a>
+            <a href="{{ url_for('watchlist') }}">Watchlist</a>
+            <a href="{{ url_for('about') }}">About</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </nav>
+    </header>
+
+    <main class="search-container">
+        <div class="search-header">
+            <h1>Search Cryptocurrencies</h1>
+            <p style="color: #a0a0a0; font-size: 16px;">Find and track your favorite cryptocurrencies</p>
+        </div>
+
+        <form method="POST" class="search-form">
+            <div class="search-input-group">
+                <input 
+                    type="text" 
+                    name="search_query" 
+                    placeholder="Search by name or symbol (e.g., Bitcoin, BTC)" 
+                    value="{{ search_query }}"
+                    required
+                >
+                <button type="submit">Search</button>
+            </div>
+        </form>
+
+        <a href="{{ url_for('watchlist') }}" class="back-to-watchlist">← Back to My Watchlist</a>
+
+        {% if search_query %}
+            {% if results %}
+                <div style="background: rgba(102, 126, 234, 0.1); border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 8px; padding: 15px 20px; margin-bottom: 30px;">
+                    <p style="color: #a0a0a0; margin: 0; font-size: 14px;">
+                        <strong style="color: #667eea;">✓ Results found for:</strong> <span style="color: #fff;">{{ search_query }}</span>
+                        {% if results|length > 0 and results[0].get('from_api', False) %}
+                            <span style="color: #ffc107; margin-left: 10px;">📡 Fetched from live cryptocurrency data</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="search-results">
+                    {% for crypto in results %}
+                        <div class="crypto-search-card">
+                            <div class="search-card-header">
+                                <h3>{{ crypto.name }}</h3>
+                                <span class="search-card-symbol">{{ crypto.symbol }}</span>
+                            </div>
+
+                            <div class="price-display">
+                                <div class="label">Current Price</div>
+                                <div class="value">${{ "%.2f"|format(crypto.current_price) }}</div>
+                            </div>
+
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <div class="label">Market Cap</div>
+                                    <div class="value">
+                                        {% if crypto.market_cap and crypto.market_cap > 0 %}
+                                            ${{ "{:,.0f}".format(crypto.market_cap / 1000000000) }}B
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="label">24h Volume</div>
+                                    <div class="value">
+                                        {% if crypto.volume_24h and crypto.volume_24h > 0 %}
+                                            ${{ "{:,.0f}".format(crypto.volume_24h / 1000000000) }}B
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if crypto.id in watchlist %}
+                                <span class="add-to-watchlist-btn added">✓</span>
+                            {% else %}
+                                <a href="{{ url_for('add_to_watchlist', crypto_id=crypto.id) }}" class="add-to-watchlist-btn">+ Add to Watchlist</a>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-message">
+                    <h2>❌ No cryptocurrencies found for "{{ search_query }}"</h2>
+                    <p>We searched in both local database and live cryptocurrency data.</p>
+                    <p style="margin-top: 15px; font-size: 14px; color: #888;">Try searching with a different keyword or symbol (e.g., Bitcoin, Ethereum, BTC, ETH)</p>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="all-cryptos-section">
+                <h2>Available Cryptocurrencies</h2>
+                <div class="search-results">
+                    {% for crypto_id, crypto_info in [('BTC', {'name': 'Bitcoin', 'symbol': 'BTC', 'current_price': 42500, 'market_cap': 830000000000, 'volume_24h': 25000000000}), 
+                                                      ('ETH', {'name': 'Ethereum', 'symbol': 'ETH', 'current_price': 2300, 'market_cap': 276000000000, 'volume_24h': 12000000000}),
+                                                      ('XRP', {'name': 'Ripple', 'symbol': 'XRP', 'current_price': 2.10, 'market_cap': 115000000000, 'volume_24h': 5000000000}),
+                                                      ('ADA', {'name': 'Cardano', 'symbol': 'ADA', 'current_price': 0.98, 'market_cap': 35000000000, 'volume_24h': 1500000000}),
+                                                      ('SOL', {'name': 'Solana', 'symbol': 'SOL', 'current_price': 175, 'market_cap': 72000000000, 'volume_24h': 3500000000}),
+                                                      ('DOGE', {'name': 'Dogecoin', 'symbol': 'DOGE', 'current_price': 0.38, 'market_cap': 56000000000, 'volume_24h': 2000000000})] %}
+                        <div class="crypto-search-card">
+                            <div class="search-card-header">
+                                <h3>{{ crypto_info.name }}</h3>
+                                <span class="search-card-symbol">{{ crypto_info.symbol }}</span>
+                            </div>
+
+                            <div class="price-display">
+                                <div class="label">Current Price</div>
+                                <div class="value">${{ "%.2f"|format(crypto_info.current_price) }}</div>
+                            </div>
+
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <div class="label">Market Cap</div>
+                                    <div class="value">${{ "{:,.0f}".format(crypto_info.market_cap / 1000000000) }}B</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="label">24h Volume</div>
+                                    <div class="value">${{ "{:,.0f}".format(crypto_info.volume_24h / 1000000000) }}B</div>
+                                </div>
+                            </div>
+
+                            {% if crypto_id in watchlist %}
+                                <button class="add-to-watchlist-btn added" disabled>✓ In Watchlist</button>
+                            {% else %}
+                                <a href="{{ url_for('add_to_watchlist', crypto_id=crypto_id) }}" class="add-to-watchlist-btn">+ Add to Watchlist</a>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2026 CryptoTrack. All rights reserved. | Real-time Cryptocurrency Tracking</p>
+        </div>
+    </footer>
+</body>
+</html>

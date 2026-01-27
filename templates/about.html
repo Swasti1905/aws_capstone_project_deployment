@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoTrack - About</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="logo-section">
+            <div class="crypto-logo">₿</div>
+            <div class="project-name">CryptoTrack</div>
+        </div>
+        <nav class="nav-menu">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('about') }}">About</a>
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('signup') }}">Signup</a>
+            <a href="{{ url_for('admin_login') }}">Admin Login</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="content-section">
+            <h2>About CryptoTrack</h2>
+            <p>
+                CryptoTrack is a secure and user-friendly cryptocurrency portfolio management platform designed to help 
+                investors track and manage their digital assets in real-time.
+            </p>
+            
+            <h2 style="font-size: 24px; margin-top: 30px;">Our Mission</h2>
+            <p>
+                To provide individuals with the tools they need to confidently manage their cryptocurrency investments 
+                and make informed financial decisions.
+            </p>
+            
+            <h2 style="font-size: 24px; margin-top: 30px;">Key Features</h2>
+            <ul>
+                <li>✓ Real-time portfolio tracking and analytics</li>
+                <li>✓ Secure user authentication and data protection</li>
+                <li>✓ Multi-wallet support for all major cryptocurrencies</li>
+                <li>✓ Detailed transaction history and reporting</li>
+                <li>✓ Professional and intuitive user interface</li>
+                <li>✓ 24/7 reliable service availability</li>
+            </ul>
+            
+            <h2 style="font-size: 24px; margin-top: 30px;">Why Choose CryptoTrack?</h2>
+            <p>
+                With CryptoTrack, security is our top priority. We use industry-leading encryption protocols and 
+                security practices to ensure your investment data remains completely private and protected. 
+                Whether you're a beginner or an experienced trader, our platform provides the insights and tools 
+                you need to succeed.
+            </p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>CryptoTrack © 2026</h3>
+            </div>
+            <div class="footer-section">
+                <p>Secure cryptocurrency portfolio management platform</p>
+            </div>
+            <div class="footer-section">
+                <p>All rights are reserved. CryptoTrack provides secure investment tracking solutions.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

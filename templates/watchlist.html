@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Watchlist - CryptoTrack</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .watchlist-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .watchlist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .watchlist-header h1 {
+            font-size: 32px;
+            color: #fff;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0a0a0;
+        }
+
+        .empty-message h2 {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .watchlist-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .crypto-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 25px;
+        }
+
+        .crypto-card:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: rgba(102, 126, 234, 0.6);
+            transform: translateX(5px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+        }
+
+        .crypto-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex: 0 0 auto;
+            gap: 15px;
+            min-width: 150px;
+        }
+
+        .crypto-info h3 {
+            font-size: 20px;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .crypto-symbol {
+            font-size: 14px;
+            color: #a0a0a0;
+        }
+
+        .remove-btn {
+            background: rgba(255, 67, 67, 0.2);
+            color: #ff4343;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            flex: 0 0 auto;
+        }
+
+        .remove-btn:hover {
+            background: rgba(255, 67, 67, 0.4);
+        }
+
+        .price-info {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 15px 20px;
+            border-radius: 8px;
+            min-width: 140px;
+            text-align: center;
+            flex: 0 0 auto;
+        }
+
+        .price-label {
+            font-size: 11px;
+            color: #a0a0a0;
+            text-transform: uppercase;
+        }
+
+        .price-value {
+            font-size: 20px;
+            color: #667eea;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .market-stats {
+            display: flex;
+            gap: 12px;
+            flex: 0 0 auto;
+        }
+
+        .stat {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 15px;
+            border-radius: 6px;
+            min-width: 90px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: #a0a0a0;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 14px;
+            color: #fff;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .alert-section {
+            background: rgba(255, 193, 7, 0.05);
+            border: 1px solid rgba(255, 193, 7, 0.2);
+            padding: 10px 15px;
+            border-radius: 8px;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 40px;
+        }
+
+        .alert-section h4 {
+            color: #ffc107;
+            font-size: 11px;
+            margin: 0;
+            text-transform: uppercase;
+            white-space: nowrap;
+            flex: 0 0 auto;
+        }
+
+        .alert-form {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex: 1;
+        }
+
+        .alert-form input,
+        .alert-form select {
+            padding: 8px 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 4px;
+            color: #fff;
+            font-size: 12px;
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .alert-form input::placeholder {
+            color: #666;
+        }
+
+        .alert-form button {
+            padding: 8px 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 0;
+            width: auto;
+            white-space: nowrap;
+            font-size: 12px;
+            flex: 0 0 auto;
+        }
+
+        .alert-form button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .existing-alert {
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            font-size: 12px;
+            color: #ffc107;
+            white-space: nowrap;
+            flex: 1;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+            padding-top: 15px;
+            border-top: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        @media (max-width: 1024px) {
+            .crypto-card {
+                flex-wrap: wrap;
+            }
+
+            .crypto-info {
+                flex: 1 1 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .watchlist-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .crypto-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .market-stats {
+                flex-wrap: wrap;
+            }
+
+            .alert-section {
+                width: 100%;
+                min-width: unset;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-section">
+            <div class="crypto-logo">₿</div>
+            <div class="project-name">CryptoTrack</div>
+        </div>
+        <nav class="nav-menu">
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('search') }}">Search</a>
+            <a href="{{ url_for('watchlist') }}">Watchlist</a>
+            <a href="{{ url_for('about') }}">About</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </nav>
+    </header>
+
+    <main class="watchlist-container">
+        <div class="watchlist-header">
+            <h1>My Watchlist</h1>
+            <div class="action-buttons">
+                <a href="{{ url_for('search') }}" class="btn btn-primary">+ Add Cryptocurrency</a>
+                <a href="{{ url_for('home') }}" class="btn btn-secondary">Back to Home</a>
+            </div>
+        </div>
+
+        {% if watchlist %}
+            <div class="watchlist-grid">
+                {% for crypto in watchlist %}
+                    <div class="crypto-card">
+                        <div class="crypto-header">
+                            <div class="crypto-info">
+                                <h3>{{ crypto.name }}</h3>
+                                <span class="crypto-symbol">{{ crypto.symbol }}</span>
+                            </div>
+                            <a href="{{ url_for('remove_from_watchlist', crypto_id=crypto.symbol) }}" class="remove-btn">Remove</a>
+                        </div>
+
+                        <div class="price-info">
+                            <div class="price-label">Current Price</div>
+                            <div class="price-value">${{ "%.2f"|format(crypto.current_price) }}</div>
+                        </div>
+
+                        <div class="market-stats">
+                            <div class="stat">
+                                <div class="stat-label">Market Cap</div>
+                                <div class="stat-value">${{ "{:,.0f}".format(crypto.market_cap / 1000000000) }}B</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-label">24h Volume</div>
+                                <div class="stat-value">${{ "{:,.0f}".format(crypto.volume_24h / 1000000000) }}B</div>
+                            </div>
+                        </div>
+
+                        <div class="alert-section">
+                            <h4>Price Alert</h4>
+                            {% if crypto.alert %}
+                                <div class="existing-alert">
+                                    Alert Set: Price {{ crypto.alert.alert_type|upper }} ${{ crypto.alert.threshold_price }}
+                                </div>
+                            {% else %}
+                                <form method="POST" action="{{ url_for('set_price_alert', crypto_id=crypto.symbol) }}" class="alert-form">
+                                    <input type="number" name="threshold_price" placeholder="Target price" step="0.01" required>
+                                    <select name="alert_type" required>
+                                        <option value="above">Alert when price goes above</option>
+                                        <option value="below">Alert when price goes below</option>
+                                    </select>
+                                    <button type="submit">Set Alert</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-message">
+                <h2>Your watchlist is empty</h2>
+                <p>Start by searching for cryptocurrencies and adding them to your watchlist to track prices in real-time.</p>
+                <a href="{{ url_for('search') }}" class="btn btn-primary" style="margin-top: 20px;">Search Cryptocurrencies</a>
+            </div>
+        {% endif %}
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2026 CryptoTrack. All rights reserved. | Real-time Cryptocurrency Tracking</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoTrack - Welcome</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="logo-section">
+            <div class="crypto-logo">₿</div>
+            <div class="project-name">CryptoTrack</div>
+        </div>
+        <nav class="nav-menu">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('about') }}">About</a>
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('signup') }}">Signup</a>
+            <a href="{{ url_for('admin_login') }}">Admin Login</a>
+        </nav>
+    </header>
+    
+    <main>
+        <div class="welcome-section">
+            <h1 class="welcome-text">Welcome to CryptoTrack</h1>
+            <p class="welcome-subtitle">
+                Your scalable real-time cryptocurrency tracking platform. Monitor live price movements, manage your portfolio, and stay ahead of the crypto market with advanced analytics.
+            </p>
+            <div class="button-group">
+                <a href="{{ url_for('login') }}"><button class="nav-button login-btn">Login</button></a>
+                <a href="{{ url_for('signup') }}"><button class="nav-button signup-btn">Start Tracking</button></a>
+            </div>
+        </div>
+
+        <div class="features-section">
+            <h2>Why Choose CryptoTrack?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>📊 Real-Time Data</h3>
+                    <p>Track cryptocurrency prices as they update live across multiple exchanges and markets.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🔐 Secure Portfolio</h3>
+                    <p>Manage your holdings securely with advanced encryption and user authentication.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>⚡ Scalable Infrastructure</h3>
+                    <p>Built on AWS cloud infrastructure for seamless performance and reliability.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📈 Advanced Analytics</h3>
+                    <p>Gain insights with historical charts, trends, and performance metrics.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🌍 Multi-Asset Support</h3>
+                    <p>Track Bitcoin, Ethereum, and hundreds of cryptocurrencies in one place.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>⚙️ Admin Dashboard</h3>
+                    <p>Comprehensive management tools for administrators to oversee the platform.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <h2>Start Tracking Your Crypto Assets Today</h2>
+            <p>Join thousands of traders and investors using CryptoTrack for real-time cryptocurrency monitoring.</p>
+            <a href="{{ url_for('signup') }}"><button class="cta-button">Create Your Free Account</button></a>
+        </div>
+    </main>
+</body>
+</html>

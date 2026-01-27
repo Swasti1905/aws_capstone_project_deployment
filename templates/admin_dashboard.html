@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - CryptoTrack</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .admin-dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .dashboard-header h1 {
+            font-size: 32px;
+            color: #fff;
+        }
+
+        .logout-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .analytics-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .metric-card:hover {
+            transform: translateX(5px);
+            border-color: rgba(102, 126, 234, 0.6);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: #a0a0a0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .metric-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            color: #fff;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .top-cryptos-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .crypto-item {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 8px;
+            padding: 20px 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .crypto-item:hover {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: rgba(102, 126, 234, 0.6);
+        }
+
+        .crypto-item-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .crypto-item-count {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .crypto-item-label {
+            font-size: 12px;
+            color: #a0a0a0;
+            text-transform: uppercase;
+            margin-top: 8px;
+        }
+
+        .price-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .price-table th {
+            background: rgba(102, 126, 234, 0.15);
+            padding: 15px;
+            text-align: left;
+            color: #fff;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .price-table td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+            color: #a0a0a0;
+        }
+
+        .price-table tr:hover {
+            background: rgba(102, 126, 234, 0.08);
+        }
+
+        .alerts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .alert-item {
+            background: rgba(255, 193, 7, 0.05);
+            border: 1px solid rgba(255, 193, 7, 0.2);
+            border-radius: 8px;
+            padding: 15px 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .alert-icon {
+            font-size: 24px;
+        }
+
+        .alert-content {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .alert-user {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffc107;
+        }
+
+        .alert-details {
+            font-size: 13px;
+            color: #a0a0a0;
+        }
+
+        .alert-time {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .alert-status {
+            margin-left: auto;
+            flex: 0 0 auto;
+        }
+
+        .no-alerts {
+            text-align: center;
+            padding: 30px;
+            color: #a0a0a0;
+        }
+
+        .stats-summary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stat-box {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 8px;
+            padding: 20px 25px;
+            flex: 1;
+            min-width: 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-box-label {
+            font-size: 12px;
+            color: #a0a0a0;
+            text-transform: uppercase;
+        }
+
+        .stat-box-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin-top: 8px;
+        }
+
+        .users-section {
+            margin-top: 40px;
+        }
+
+        .user-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+            margin-bottom: 15px;
+        }
+
+        .user-info h3 {
+            color: #fff;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .user-info p {
+            color: #a0a0a0;
+            font-size: 13px;
+            margin: 3px 0;
+        }
+
+        .user-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .user-stat {
+            text-align: center;
+        }
+
+        .user-stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .user-stat-label {
+            font-size: 12px;
+            color: #a0a0a0;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        .watchlist-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .watchlist-table th {
+            background: rgba(102, 126, 234, 0.15);
+            padding: 12px;
+            text-align: left;
+            color: #fff;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.3);
+            font-size: 13px;
+        }
+
+        .watchlist-table td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+            color: #a0a0a0;
+            font-size: 13px;
+        }
+
+        .watchlist-table tr:hover {
+            background: rgba(102, 126, 234, 0.08);
+        }
+
+        .watchlist-table strong {
+            color: #fff;
+        }
+
+        .alert-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .alert-type {
+            text-transform: uppercase;
+            color: #667eea;
+        }
+
+        .empty-watchlist {
+            color: #a0a0a0;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .logout-btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .analytics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .price-table {
+                font-size: 14px;
+            }
+
+            .price-table th,
+            .price-table td {
+                padding: 10px;
+            }
+
+            .user-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .user-stats {
+                width: 100%;
+                margin-top: 15px;
+            }
+
+            .watchlist-table {
+                font-size: 12px;
+            }
+
+            .watchlist-table th,
+            .watchlist-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-section">
+            <div class="crypto-logo">₿</div>
+            <div class="project-name">CryptoTrack Admin</div>
+        </div>
+        <nav class="nav-menu">
+            <span style="color: #a0a0a0;">Admin Panel</span>
+            <a href="{{ url_for('logout') }}" style="color: #ff6b6b;">Logout</a>
+        </nav>
+    </header>
+
+    <main class="admin-dashboard-container">
+        <div class="dashboard-header">
+            <div>
+                <h1>Admin Dashboard</h1>
+                <p style="color: #a0a0a0; margin-top: 5px;">Market Analytics & System Overview</p>
+            </div>
+            <a href="{{ url_for('logout') }}" class="logout-btn">← Logout</a>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="analytics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Total Users</div>
+                <div class="metric-value">{{ analytics.total_users }}</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Total Watchlists</div>
+                <div class="metric-value">{{ analytics.total_watchlists }}</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Active Alerts</div>
+                <div class="metric-value">{{ analytics.total_alerts }}</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Tracked Cryptos</div>
+                <div class="metric-value">{{ analytics.crypto_prices|length }}</div>
+            </div>
+        </div>
+
+        <!-- Top Cryptocurrencies Section -->
+        <div class="section">
+            <h2 class="section-title">Most Tracked Cryptocurrencies</h2>
+            <div class="chart-container">
+                {% if analytics.top_cryptos %}
+                    <div class="top-cryptos-grid">
+                        {% for crypto, count in analytics.top_cryptos %}
+                            <div class="crypto-item">
+                                <div class="crypto-item-name">{{ crypto }}</div>
+                                <div class="crypto-item-count">{{ count }}</div>
+                                <div class="crypto-item-label">Watchlist Adds</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p style="color: #a0a0a0; text-align: center;">No cryptocurrency data yet</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Live Price Data Section -->
+        <div class="section">
+            <h2 class="section-title">Live Cryptocurrency Prices</h2>
+            <div class="chart-container">
+                {% if analytics.crypto_prices %}
+                    <table class="price-table">
+                        <thead>
+                            <tr>
+                                <th>Cryptocurrency</th>
+                                <th style="text-align: right;">Current Price (USD)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for crypto_id, price in analytics.crypto_prices %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ crypto_id }}</strong>
+                                    </td>
+                                    <td style="text-align: right; color: #667eea; font-weight: 600;">
+                                        ${{ "%.2f"|format(price) }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p style="color: #a0a0a0; text-align: center;">No price data available</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Active Price Alerts Section -->
+        <div class="section">
+            <h2 class="section-title">Active Price Alerts</h2>
+            <div class="chart-container">
+                {% if analytics.recent_alerts %}
+                    <div class="alerts-list">
+                        {% for alert in analytics.recent_alerts %}
+                            <div class="alert-item">
+                                <div class="alert-icon">🔔</div>
+                                <div class="alert-content">
+                                    <div class="alert-user">User: <strong>{{ alert.user }}</strong></div>
+                                    <div class="alert-details">
+                                        {{ alert.crypto }} | Alert when price goes {{ alert.type|upper }} ${{ alert.threshold }}
+                                    </div>
+                                    <div class="alert-time">Created: {{ alert.created_at }}</div>
+                                </div>
+                                <div class="alert-status">
+                                    <span style="color: #ffc107; font-weight: 600;">ACTIVE</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="no-alerts">
+                        <p>No active price alerts yet</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- System Statistics -->
+        <div class="section">
+            <h2 class="section-title">System Statistics</h2>
+            <div class="chart-container">
+                <div class="stats-summary">
+                    <div class="stat-box">
+                        <div class="stat-box-label">Average Watchlist Size</div>
+                        <div class="stat-box-value">
+                            {% if analytics.total_users > 0 %}
+                                {{ "%.1f"|format(analytics.total_watchlists / analytics.total_users) }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-label">Alerts Per User</div>
+                        <div class="stat-box-value">
+                            {% if analytics.total_users > 0 %}
+                                {{ "%.1f"|format(analytics.total_alerts / analytics.total_users) }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-label">Platform Status</div>
+                        <div class="stat-box-value" style="color: #4caf50;">ONLINE</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-label">Last Updated</div>
+                        <div class="stat-box-value" style="font-size: 14px; color: #a0a0a0;">Just now</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed User Information -->
+        <div class="section users-section">
+            <h2 class="section-title">User Accounts & Details</h2>
+            {% if analytics.detailed_users %}
+                {% for user in analytics.detailed_users %}
+                    <div class="user-card">
+                        <div class="user-header">
+                            <div class="user-info">
+                                <h3>👤 {{ user.username }}</h3>
+                                <p>📧 Email: {{ user.email }}</p>
+                            </div>
+                            <div class="user-stats">
+                                <div class="user-stat">
+                                    <div class="user-stat-value">{{ user.watchlist_count }}</div>
+                                    <div class="user-stat-label">Watchlists</div>
+                                </div>
+                                <div class="user-stat">
+                                    <div class="user-stat-value">{{ user.alert_count }}</div>
+                                    <div class="user-stat-label">Alerts</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- User's Watchlist -->
+                        {% if user.watchlist %}
+                            <div style="margin-bottom: 20px;">
+                                <h4 style="color: #fff; margin-bottom: 12px; font-size: 14px; text-transform: uppercase; color: #a0a0a0;">📋 Watchlist Items:</h4>
+                                <table class="watchlist-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Symbol</th>
+                                            <th>Cryptocurrency</th>
+                                            <th style="text-align: right;">Current Price</th>
+                                            <th>Market Cap</th>
+                                            <th>Alert Status</th>
+                                            <th>Alert Type</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in user.watchlist %}
+                                            <tr>
+                                                <td><strong>{{ item.symbol }}</strong></td>
+                                                <td>{{ item.name }}</td>
+                                                <td style="text-align: right; color: #667eea; font-weight: 600;">
+                                                    ${{ "%.2f"|format(item.price) }}
+                                                </td>
+                                                <td>{{ item.market_cap if item.market_cap else "N/A" }}</td>
+                                                <td>
+                                                    {% if item.has_alert %}
+                                                        <span class="alert-badge">✓ ALERT SET</span>
+                                                    {% else %}
+                                                        <span style="color: #a0a0a0; font-size: 11px;">No Alert</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if item.alert_type %}
+                                                        <span class="alert-type">{{ item.alert_type }} ${{ "%.2f"|format(item.alert_price) }}</span>
+                                                    {% else %}
+                                                        <span style="color: #a0a0a0;">—</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="empty-watchlist">📭 No watchlist items</div>
+                        {% endif %}
+
+                        <!-- User's Alerts -->
+                        {% if user.alerts %}
+                            <div>
+                                <h4 style="color: #fff; margin-bottom: 12px; font-size: 14px; text-transform: uppercase; color: #a0a0a0;">🔔 Active Alerts:</h4>
+                                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                    {% for crypto_id, alert_info in user.alerts.items() %}
+                                        <div style="background: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); border-radius: 6px; padding: 10px 15px; flex: 0 1 auto;">
+                                            <div style="color: #ffc107; font-weight: 600; font-size: 13px;">{{ crypto_id }}</div>
+                                            <div style="color: #a0a0a0; font-size: 12px; margin-top: 3px;">
+                                                <strong>{{ alert_info.alert_type|upper }}</strong> 
+                                                when price is {{ alert_info.alert_type }} ${{ "%.2f"|format(alert_info.threshold_price) }}
+                                            </div>
+                                            <div style="color: #888; font-size: 11px; margin-top: 3px;">
+                                                Created: {{ alert_info.created_at }}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="empty-watchlist">📭 No active alerts</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="chart-container" style="text-align: center; padding: 40px;">
+                    <p style="color: #a0a0a0; font-size: 16px;">No user data available yet</p>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2026 CryptoTrack Admin Dashboard. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
