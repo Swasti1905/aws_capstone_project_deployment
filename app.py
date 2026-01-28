@@ -1,9 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session
 import json
 from datetime import datetime
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+
+
 import requests
 
 app = Flask(__name__)
@@ -13,7 +12,8 @@ app.secret_key = 'your_secret_key_here_crypto_tracker'
 users = {}  # {username: {password, email, watchlist: [crypto_ids], alerts: {crypto_id: threshold_price}}}
 watchlists = {}  # {username: [crypto_ids]}
 price_alerts = {}  # {username: {crypto_id: {threshold_price, alert_type: above/below}}}
-crypto_data = {}  # Store cached crypto data for analytics
+admins = {}  # {admin_username: password}
+
 
 # Mock cryptocurrency data (simulating API calls)
 CRYPTO_DATABASE = {
@@ -171,19 +171,49 @@ def index():
 def about():
     return render_template('about.html')
 
-@app.route('/admin-login', methods=['GET', 'POST'])
-def admin_login():
+
+@app.route('/admin-signup', methods=['GET', 'POST'])
+def admin_signup():
     error = None
+
     if request.method == 'POST':
         admin_username = request.form['admin_username']
         admin_password = request.form['admin_password']
-        
-        if admin_username == 'admin' and admin_password == 'admin123':
+        confirm_password = request.form['confirm_password']
+
+        # Check if admin already exists
+        if admin_username in admins:
+            error = "Admin already exists!"
+
+        # Check password match
+        elif admin_password != confirm_password:
+            error = "Passwords do not match!"
+
+        else:
+            # Save admin (local memory)
+            admins[admin_username] = admin_password
+            return redirect(url_for('admin_login'))
+
+    return render_template('admin_signup.html', error=error)
+
+
+@app.route('/admin-login', methods=['GET', 'POST'])
+def admin_login():
+    error = None
+
+    if request.method == 'POST':
+        admin_username = request.form['admin_username']
+        admin_password = request.form['admin_password']
+
+        if admin_username in admins and admins[admin_username] == admin_password:
             session['admin'] = admin_username
             return redirect(url_for('admin_dashboard'))
         else:
             error = "Invalid admin credentials!"
+
+    # ✅ ALWAYS return a response
     return render_template('admin_login.html', error=error)
+
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
