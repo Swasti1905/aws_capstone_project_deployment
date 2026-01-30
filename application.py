@@ -24,6 +24,25 @@ admin_users_table = dynamodb.Table("AdminUsers")
 watchlists_table = dynamodb.Table("Watchlists")
 alerts_table = dynamodb.Table("PriceAlerts")
 
+def scan_all(table):
+    items = []
+
+    try:
+        response = table.scan()
+        items.extend(response.get('Items', []))
+
+        while 'LastEvaluatedKey' in response:
+            response = table.scan(
+                ExclusiveStartKey=response['LastEvaluatedKey']
+            )
+            items.extend(response.get('Items', []))
+
+    except ClientError as e:
+        print("DynamoDB scan error:", e)
+
+    return items
+
+
 
 
 SNS_TOPIC_ARN = 'arn:aws:sns:us-east-1:203918855127:project_topic'
@@ -41,18 +60,7 @@ def send_notification(subject, message):
         )
     except ClientError as e:
         print("SNS error:", e)
-
-
-
-# Mock cryptocurrency data (simulating API calls)
-CRYPTO_DATABASE = {
-    'BTC': {'name': 'Bitcoin', 'symbol': 'BTC', 'current_price': 42500, 'market_cap': 830000000000, 'volume_24h': 25000000000},
-    'ETH': {'name': 'Ethereum', 'symbol': 'ETH', 'current_price': 2300, 'market_cap': 276000000000, 'volume_24h': 12000000000},
-    'XRP': {'name': 'Ripple', 'symbol': 'XRP', 'current_price': 2.10, 'market_cap': 115000000000, 'volume_24h': 5000000000},
-    'ADA': {'name': 'Cardano', 'symbol': 'ADA', 'current_price': 0.98, 'market_cap': 35000000000, 'volume_24h': 1500000000},
-    'SOL': {'name': 'Solana', 'symbol': 'SOL', 'current_price': 175, 'market_cap': 72000000000, 'volume_24h': 3500000000},
-    'DOGE': {'name': 'Dogecoin', 'symbol': 'DOGE', 'current_price': 0.38, 'market_cap': 56000000000, 'volume_24h': 2000000000},
-}
+        
 
 def get_crypto_by_search(query):
     """Fetch cryptocurrency data from CoinGecko API based on search query"""
@@ -259,6 +267,11 @@ def admin_login():
 
             # ✅ SECURE password check
             if admin and check_password_hash(admin['password'], admin_password):
+                admin_users_table.update_item(
+                    Key={'username': admin_username},
+                    UpdateExpression="SET failed_attempts = :z, locked_until = :z",
+                    ExpressionAttributeValues={':z': 0}
+                )
                 session['admin'] = admin_username
 
                 # 🔔 SNS Notification
@@ -364,6 +377,7 @@ def login():
 
 @app.route('/home')
 def home():
+    # 👤 Normal user
     if 'username' in session:
         username = session['username']
         watchlist_data = []
@@ -378,36 +392,36 @@ def home():
             for item in user_watchlist:
                 crypto_id = item['crypto_id']
 
-                if crypto_id in CRYPTO_DATABASE:
-                    crypto_info = CRYPTO_DATABASE[crypto_id]
-                    watchlist_data.append({
-                        'id': crypto_id,
-                        'name': crypto_info.get('name', crypto_id),
-                        'symbol': crypto_info.get('symbol', crypto_id.upper()),
-                        'current_price': crypto_info.get('current_price', 0),
-                        'market_cap': crypto_info.get('market_cap', 0),
-                        'volume_24h': crypto_info.get('volume_24h', 0)
-                    })
-                else:
-                    api_data = get_crypto_details_by_id(crypto_id)
-                    watchlist_data.append({
-                        'id': crypto_id,
-                        'name': crypto_id,
-                        'symbol': crypto_id.upper(),
-                        'current_price': api_data.get("current_price", 0) if api_data else 0,
-                        'market_cap': api_data.get("market_cap", 0) if api_data else 0,
-                        'volume_24h': api_data.get("volume_24h", 0) if api_data else 0
-                    })
+                # 🌐 Always fetch from CoinGecko
+                api_data = get_crypto_details_by_id(crypto_id)
+
+                watchlist_data.append({
+                    'id': crypto_id,
+                    'name': crypto_id,                  # you can prettify later
+                    'symbol': crypto_id.upper(),        # display only
+                    'current_price': api_data.get("current_price", 0) if api_data else 0,
+                    'market_cap': api_data.get("market_cap", 0) if api_data else 0,
+                    'volume_24h': api_data.get("volume_24h", 0) if api_data else 0
+                })
 
         except ClientError as e:
             print("Home watchlist error:", e)
 
-        return render_template('home.html', username=username, watchlist=watchlist_data, is_admin=False)
+        return render_template(
+            'home.html',
+            username=username,
+            watchlist=watchlist_data,
+            is_admin=False
+        )
 
+    # 🛡 Admin user
     elif 'admin' in session:
         return redirect(url_for('admin_dashboard'))
 
+    # 🚫 Not logged in
     return redirect(url_for('login'))
+
+
 
 
 @app.route('/search', methods=['GET', 'POST'])
@@ -437,24 +451,8 @@ def search():
         search_query = request.form.get('search_query', '').strip()
 
         if search_query:
-            # 🔎 First check local crypto database
-            search_upper = search_query.upper()
-            for crypto_id, crypto_info in CRYPTO_DATABASE.items():
-                if search_upper in crypto_id or search_upper in crypto_info['name'].upper():
-                    results.append({
-                        'id': crypto_id,
-                        'name': crypto_info['name'],
-                        'symbol': crypto_info['symbol'],
-                        'current_price': crypto_info['current_price'],
-                        'market_cap': crypto_info['market_cap'],
-                        'volume_24h': crypto_info['volume_24h']
-                    })
-
-            # 🌐 If no local results, fetch from CoinGecko
-            if not results:
-                api_results = get_crypto_by_search(search_query)
-                if api_results:
-                    results.extend(api_results)
+            # 🌐 API-only search (CoinGecko)
+            results = get_crypto_by_search(search_query)
 
             if not results:
                 no_results = True
@@ -465,8 +463,7 @@ def search():
         search_query=search_query,
         watchlist=user_watchlist,
         no_results=no_results
-    ) 
-
+    )
 
 @app.route('/watchlist')
 def watchlist():
@@ -487,23 +484,12 @@ def watchlist():
         for item in user_watchlist:
             crypto_id = item['crypto_id']
 
-            # 📊 Local DB crypto
-            if crypto_id in CRYPTO_DATABASE:
-                crypto_info = CRYPTO_DATABASE[crypto_id]
-                current_price = crypto_info.get("current_price", 0)
-                market_cap = crypto_info.get("market_cap", 0)
-                volume_24h = crypto_info.get("volume_24h", 0)
-                name = crypto_info.get("name", crypto_id)
-                symbol = crypto_info.get("symbol", crypto_id.upper())
+            # 🌐 Always fetch live data from CoinGecko
+            api_data = get_crypto_details_by_id(crypto_id)
 
-            # 🌐 API crypto
-            else:
-                api_data = get_crypto_details_by_id(crypto_id)
-                current_price = api_data.get("current_price", 0) if api_data else 0
-                market_cap = api_data.get("market_cap", 0) if api_data else 0
-                volume_24h = api_data.get("volume_24h", 0) if api_data else 0
-                name = crypto_id
-                symbol = crypto_id.upper()
+            current_price = api_data.get("current_price", 0) if api_data else 0
+            market_cap = api_data.get("market_cap", 0) if api_data else 0
+            volume_24h = api_data.get("volume_24h", 0) if api_data else 0
 
             # 🔔 Fetch alert config (if any)
             alert_res = alerts_table.get_item(
@@ -514,8 +500,8 @@ def watchlist():
             watchlist_data.append({
                 'id': crypto_id,
                 'alert': alert_config,
-                'name': name,
-                'symbol': symbol,
+                'name': crypto_id,            # display name (can prettify later)
+                'symbol': crypto_id.upper(),  # display only
                 'current_price': current_price,
                 'market_cap': market_cap,
                 'volume_24h': volume_24h
@@ -529,6 +515,7 @@ def watchlist():
         watchlist=watchlist_data,
         username=username
     )
+
 
 
 @app.route('/add-to-watchlist/<crypto_id>')
@@ -592,18 +579,17 @@ def set_price_alert(crypto_id):
     alert_type = request.form.get('alert_type', 'above')
 
     try:
-        # ✅ Save alert in DynamoDB
         alerts_table.put_item(
             Item={
                 'username': username,
                 'crypto_id': crypto_id,
                 'threshold_price': threshold_price,
                 'alert_type': alert_type,
+                'triggered': False,
                 'created_at': datetime.utcnow().isoformat()
             }
         )
 
-        # 🔔 SNS notification (alert created)
         send_notification(
             "Price Alert Set",
             f"User '{username}' set a {alert_type} alert for {crypto_id} at ${threshold_price}"
@@ -613,6 +599,7 @@ def set_price_alert(crypto_id):
         print("Set price alert error:", e)
 
     return redirect(url_for('watchlist'))
+
 
 @app.route('/admin-dashboard')
 def admin_dashboard():
@@ -626,13 +613,10 @@ def admin_dashboard():
         # be replaced with indexed queries or analytics pipelines. 
 
         # 🔍 Fetch data from DynamoDB
-        users_res = users_table.scan()
-        watchlists_res = watchlists_table.scan()
-        alerts_res = alerts_table.scan()
+        users_items = scan_all(users_table)
+        watchlist_items = scan_all(watchlists_table)
+        alerts_items = scan_all(alerts_table)
 
-        users_items = users_res.get('Items', [])
-        watchlist_items = watchlists_res.get('Items', [])
-        alerts_items = alerts_res.get('Items', [])
 
         # 📊 Basic counts
         total_users = len(users_items)
@@ -731,4 +715,4 @@ def logout():
     return redirect(url_for('index'))
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5000,debug=True)
