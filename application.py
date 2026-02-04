@@ -3,6 +3,8 @@ import os
 from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key
 from werkzeug.security import generate_password_hash, check_password_hash
+from decimal import Decimal, InvalidOperation
+
 
 
 from flask import Flask, render_template, request, redirect, url_for, session,flash
@@ -575,8 +577,14 @@ def set_price_alert(crypto_id):
         return redirect(url_for('login'))
 
     username = session['username']
-    threshold_price = float(request.form.get('threshold_price', 0))
+    price_input = request.form.get('threshold_price', '').strip()
     alert_type = request.form.get('alert_type', 'above')
+
+    try:
+        threshold_price = Decimal(price_input)
+    except (InvalidOperation, ValueError):
+        flash("Enter a valid decimal price", "error")
+        return redirect(url_for('watchlist'))
 
     try:
         alerts_table.put_item(
@@ -592,13 +600,14 @@ def set_price_alert(crypto_id):
 
         send_notification(
             "Price Alert Set",
-            f"User '{username}' set a {alert_type} alert for {crypto_id} at ${threshold_price}"
+            f"{crypto_id} alert set at ${threshold_price}"
         )
 
     except ClientError as e:
         print("Set price alert error:", e)
 
     return redirect(url_for('watchlist'))
+
 
 
 @app.route('/admin-dashboard')
