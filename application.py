@@ -126,12 +126,13 @@ def get_crypto_by_search(query):
         return []
 
 def get_crypto_details_by_id(coin_id):
-    """Fetch live crypto details from CoinGecko using coin_id"""
     try:
         headers = {"User-Agent": "Mozilla/5.0"}
+        coin_id = coin_id.lower()
+
         url = "https://api.coingecko.com/api/v3/simple/price"
         params = {
-            "ids": coin_id.lower(),
+            "ids": coin_id,
             "vs_currencies": "usd",
             "include_market_cap": "true",
             "include_24hr_vol": "true"
@@ -140,7 +141,7 @@ def get_crypto_details_by_id(coin_id):
         r = requests.get(url, params=params, headers=headers, timeout=15)
         r.raise_for_status()
         data = r.json()
-        
+
         if coin_id in data:
             info = data[coin_id]
 
@@ -151,6 +152,7 @@ def get_crypto_details_by_id(coin_id):
             }
 
         return None
+
     except Exception as e:
         print("Error fetching coin details:", coin_id, e)
         return None
