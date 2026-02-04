@@ -423,7 +423,7 @@
                             {% if crypto_id in watchlist %}
                                 <button class="add-to-watchlist-btn added" disabled>✓ In Watchlist</button>
                             {% else %}
-                                <a href="{{ url_for('add_to_watchlist', crypto_id=crypto.id) }}" class="add-to-watchlist-btn">+ Add to Watchlist</a>
+                                <a href="{{ url_for('add_to_watchlist', crypto_id=crypto_id) }}" class="add-to-watchlist-btn">+ Add to Watchlist</a>
                             {% endif %}
                         </div>
                     {% endfor %}
