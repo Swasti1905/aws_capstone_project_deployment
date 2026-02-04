@@ -367,7 +367,7 @@
                                     Alert Set: Price {{ crypto.alert.alert_type|upper }} ${{ crypto.alert.threshold_price }}
                                 </div>
                             {% else %}
-                                <form method="POST" action="{{ url_for('set_price_alert', crypto_id=crypto.symbol) }}" class="alert-form">
+                                <form method="POST" action="{{ url_for('set_price_alert', crypto_id=crypto.id) }}" class="alert-form">
                                     <input type="number" name="threshold_price" placeholder="Target price" step="0.01" required>
                                     <select name="alert_type" required>
                                         <option value="above">Alert when price goes above</option>
