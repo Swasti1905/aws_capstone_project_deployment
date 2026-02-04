@@ -45,7 +45,7 @@ def scan_all(table):
 
 
 
-SNS_TOPIC_ARN = 'arn:aws:sns:us-east-1:376129862432:project_topic:0aa1423c-4bb6-439f-ac46-ded129c4e8b9'
+SNS_TOPIC_ARN = 'arn:aws:sns:us-east-1:376129862432:project_topic'
 
 def send_notification(subject, message):
     if not SNS_TOPIC_ARN:
