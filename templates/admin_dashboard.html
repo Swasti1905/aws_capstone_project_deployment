@@ -656,28 +656,42 @@
                             <div class="empty-watchlist">📭 No watchlist items</div>
                         {% endif %}
 
-                        <!-- User's Alerts -->
+                      <!-- User's Alerts -->
                         {% if user.alerts %}
-                            <div>
-                                <h4 style="color: #fff; margin-bottom: 12px; font-size: 14px; text-transform: uppercase; color: #a0a0a0;">🔔 Active Alerts:</h4>
-                                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-                                    {% for crypto_id, alert_info in user.alerts.items() %}
-                                        <div style="background: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); border-radius: 6px; padding: 10px 15px; flex: 0 1 auto;">
-                                            <div style="color: #ffc107; font-weight: 600; font-size: 13px;">{{ crypto_id }}</div>
-                                            <div style="color: #a0a0a0; font-size: 12px; margin-top: 3px;">
-                                                <strong>{{ alert_info.alert_type|upper }}</strong> 
-                                                when price is {{ alert_info.alert_type }} ${{ "%.2f"|format(alert_info.threshold_price) }}
-                                            </div>
-                                            <div style="color: #888; font-size: 11px; margin-top: 3px;">
-                                                Created: {{ alert_info.created_at }}
-                                            </div>
-                                        </div>
-                                    {% endfor %}
+                        <div>
+                            <h4 style="color: #fff; margin-bottom: 12px; font-size: 14px; text-transform: uppercase; color: #a0a0a0;">
+                                🔔 Active Alerts:
+                            </h4>
+                            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                {% for alert_info in user.alerts %}
+                                <div style="background: rgba(255, 193, 7, 0.1);
+                                    border: 1px solid rgba(255, 193, 7, 0.3);
+                                    border-radius: 6px;
+                                    padding: 10px 15px;">
+                                    <div style="color: #ffc107; font-weight: 600; font-size: 13px;">
+                                        {{ alert_info.crypto_id }}
+                                    </div>
+                                    
+                                    <div style="color: #a0a0a0; font-size: 12px; margin-top: 3px;">
+                                        <strong>{{ alert_info.alert_type|upper }}</strong>
+                                        when price is {{ alert_info.alert_type }}
+                                        ${{ "%.2f"|format(alert_info.threshold_price) }}
+                                    </div>
+                                    
+                                    <div style="color: #888; font-size: 11px; margin-top: 3px;">
+                                        Created: {{ alert_info.created_at }}
+                                    </div>
+                                
                                 </div>
+                                {% endfor %}
+                            
                             </div>
+                        
+                        </div>
                         {% else %}
-                            <div class="empty-watchlist">📭 No active alerts</div>
+                        <div class="empty-watchlist">📭 No active alerts</div>
                         {% endif %}
+
                     </div>
                 {% endfor %}
             {% else %}
