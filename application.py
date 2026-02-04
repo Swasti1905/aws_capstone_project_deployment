@@ -131,7 +131,7 @@ def get_crypto_details_by_id(coin_id):
         headers = {"User-Agent": "Mozilla/5.0"}
         url = "https://api.coingecko.com/api/v3/simple/price"
         params = {
-            "ids": coin_id,
+            "ids": coin_id.lower(),
             "vs_currencies": "usd",
             "include_market_cap": "true",
             "include_24hr_vol": "true"
@@ -487,11 +487,15 @@ def watchlist():
             crypto_id = item['crypto_id']
 
             # 🌐 Always fetch live data from CoinGecko
-            api_data = get_crypto_details_by_id(crypto_id)
+           api_data = get_crypto_details_by_id(crypto_id.lower())
+
+            print("Coin:", crypto_id)
+            print("API DATA:", api_data)
 
             current_price = api_data.get("current_price", 0) if api_data else 0
             market_cap = api_data.get("market_cap", 0) if api_data else 0
             volume_24h = api_data.get("volume_24h", 0) if api_data else 0
+
 
             # 🔔 Fetch alert config (if any)
             alert_res = alerts_table.get_item(
