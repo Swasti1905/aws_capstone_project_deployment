@@ -140,9 +140,10 @@ def get_crypto_details_by_id(coin_id):
         r = requests.get(url, params=params, headers=headers, timeout=15)
         r.raise_for_status()
         data = r.json()
-
+        
         if coin_id in data:
             info = data[coin_id]
+
             return {
                 "current_price": info.get("usd", 0),
                 "market_cap": info.get("usd_market_cap", 0),
@@ -482,36 +483,32 @@ def watchlist():
         )
 
         user_watchlist = response.get('Items', [])
-
         for item in user_watchlist:
             crypto_id = item['crypto_id']
-
-            # 🌐 Always fetch live data from CoinGecko
-           api_data = get_crypto_details_by_id(crypto_id.lower())
-
+            api_data = get_crypto_details_by_id(crypto_id.lower())
+            
             print("Coin:", crypto_id)
             print("API DATA:", api_data)
-
+            
             current_price = api_data.get("current_price", 0) if api_data else 0
             market_cap = api_data.get("market_cap", 0) if api_data else 0
             volume_24h = api_data.get("volume_24h", 0) if api_data else 0
-
-
-            # 🔔 Fetch alert config (if any)
+            
             alert_res = alerts_table.get_item(
                 Key={'username': username, 'crypto_id': crypto_id}
             )
             alert_config = alert_res.get('Item', {})
-
+            
             watchlist_data.append({
                 'id': crypto_id,
                 'alert': alert_config,
-                'name': crypto_id,            # display name (can prettify later)
-                'symbol': crypto_id.upper(),  # display only
+                'name': crypto_id,
+                'symbol': crypto_id.upper(),
                 'current_price': current_price,
                 'market_cap': market_cap,
                 'volume_24h': volume_24h
             })
+
 
     except ClientError as e:
         print("Watchlist fetch error:", e)
