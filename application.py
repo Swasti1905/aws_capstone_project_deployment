@@ -128,9 +128,10 @@ def get_crypto_by_search(query):
 def get_crypto_details_by_id(coin_id):
     try:
         headers = {"User-Agent": "Mozilla/5.0"}
-        coin_id = coin_id.lower()
+        coin_id = coin_id.lower().strip()
 
         url = "https://api.coingecko.com/api/v3/simple/price"
+
         params = {
             "ids": coin_id,
             "vs_currencies": "usd",
@@ -142,28 +143,25 @@ def get_crypto_details_by_id(coin_id):
         r.raise_for_status()
         data = r.json()
 
-        print("API RAW RESPONSE:", data)  # debug
+        print("Coin requested:", coin_id)
+        print("API response:", data)
 
         if not data:
             return None
 
-        # take first coin safely
-        info = list(data.values())[0]
+        # safely read first result
+        info = next(iter(data.values()))
 
         return {
-            "current_price": info.get("usd", 0),
-            "market_cap": info.get("usd_market_cap", 0),
-            "volume_24h": info.get("usd_24h_vol", 0)
+            "current_price": float(info.get("usd", 0)),
+            "market_cap": float(info.get("usd_market_cap", 0)),
+            "volume_24h": float(info.get("usd_24h_vol", 0))
         }
 
     except Exception as e:
-        print("Error fetching coin details:", coin_id, e)
+        print("Error fetching coin:", coin_id, e)
         return None
 
-
-    except Exception as e:
-        print("Error fetching coin details:", coin_id, e)
-        return None
 
 
 def check_price_alerts(username):
