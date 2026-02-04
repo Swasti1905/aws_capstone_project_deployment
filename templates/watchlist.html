@@ -341,7 +341,7 @@
                                 <h3>{{ crypto.name }}</h3>
                                 <span class="crypto-symbol">{{ crypto.symbol }}</span>
                             </div>
-                            <a href="{{ url_for('remove_from_watchlist', crypto_id=crypto.symbol) }}" class="remove-btn">Remove</a>
+                            <a href="{{ url_for('remove_from_watchlist', crypto_id=crypto.id) }}" class="remove-btn">Remove</a>
                         </div>
 
                         <div class="price-info">
