@@ -142,16 +142,24 @@ def get_crypto_details_by_id(coin_id):
         r.raise_for_status()
         data = r.json()
 
-        if coin_id in data:
-            info = data[coin_id]
+        print("API RAW RESPONSE:", data)  # debug
 
-            return {
-                "current_price": info.get("usd", 0),
-                "market_cap": info.get("usd_market_cap", 0),
-                "volume_24h": info.get("usd_24h_vol", 0)
-            }
+        if not data:
+            return None
 
+        # take first coin safely
+        info = list(data.values())[0]
+
+        return {
+            "current_price": info.get("usd", 0),
+            "market_cap": info.get("usd_market_cap", 0),
+            "volume_24h": info.get("usd_24h_vol", 0)
+        }
+
+    except Exception as e:
+        print("Error fetching coin details:", coin_id, e)
         return None
+
 
     except Exception as e:
         print("Error fetching coin details:", coin_id, e)
